@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    depends_on:
+      - db
+
+  db:
+    build: database/
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: world
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - "33060:3306"

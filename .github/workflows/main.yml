@@ -1,0 +1,114 @@
+name: Java CI with Docker
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  UnitTests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Run Unit Tests
+        run: |
+          mvn -Dtest=com.napier.gp19.CityUnitTest test
+          mvn -Dtest=com.napier.gp19.CountryUnitTest test
+          mvn -Dtest=com.napier.gp19.CountryLanguageUnitTest test
+          mvn -Dtest=com.napier.gp19.CapitalCitiesReportsUnitTest test
+          mvn -Dtest=com.napier.gp19.CitiesReportsUnitTest test
+          mvn -Dtest=com.napier.gp19.CountriesReportsUnitTest test
+          mvn -Dtest=com.napier.gp19.LanguagePopulationReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationCityReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationContinentReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationCountryReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationDistrictReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationRegionReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationWorldReportUnitTest test
+          mvn -Dtest=com.napier.gp19.PopulationUtilsUnitTest test
+          mvn -Dtest=com.napier.gp19.ReportWriterUnitTest test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/site/jacoco/jacoco.xml
+          flags: UnitTests
+          verbose: true
+
+  IntegrationTests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Integration Tests
+        run: |
+          docker build -t database ./database
+          docker run --name world -dp 33060:3306 database
+          mvn -Dtest=com.napier.gp19.AppIntegrationTest test
+          docker stop world
+          docker rm world
+          docker image rm database
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/site/jacoco/jacoco.xml
+          flags: IntegrationTests
+          verbose: true
+
+  BuildAndRelease:
+     name: Build, Start docker-compose, and Deploy Release
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up JDK 24
+         uses: actions/setup-java@v4
+         with:
+           java-version: '24'
+           distribution: 'temurin'
+
+       - name: Build and Start docker-compose
+         run: |
+           mvn package -DskipTests
+           docker compose up --abort-on-container-exit
+
+       - name: Deploy Release
+         uses: marvinpinto/action-automatic-releases@latest
+         with:
+           repo_token: ${{ secrets.PAT_TOKEN }}
+           prerelease: false
+           automatic_release_tag: latest
+           files: ./target/*.jar
+           overwrite: true
+
+       - name: Copy Output
+         run: docker container cp group19-devops-app-1:./app/reports ./
+
+       - name: Deploy
+         uses: JamesIves/github-pages-deploy-action@v4.2.5
+         with:
+           branch: reports
+           folder: reports
+           token: ${{ secrets.DEPLOY_PAT }}

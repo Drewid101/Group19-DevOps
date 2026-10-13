@@ -1,0 +1,124 @@
+name: Bug Report
+description: Report any issues, including SQL errors, missing columns, or runtime problems
+title: "[Bug]: "
+labels: ["bug", "triage"]
+projects:
+  - "octo-org/1"
+  - "octo-org/44"
+assignees:
+  - octocat
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!  
+        Please provide as much detail as possible so we can reproduce and fix the issue quickly.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we reach you for clarification?
+      placeholder: ex. your.email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what went wrong and what you expected to happen.
+      placeholder: "Example: Error when generating Report 7 – SQL column not found"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: report-type
+    attributes:
+      label: Which report or section caused the issue?
+      options:
+        - Connection / Database Startup
+        - Country Reports (1–6)
+        - City Reports (7–16)
+        - Capital City Reports (17–22)
+        - Population Reports (23–31)
+        - Language Report (32)
+        - Other / Unknown
+      default: 0
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Full Error Message or Stack Trace
+      description: Copy and paste the console or log output. This helps identify SQL or Java exceptions.
+      render: shell
+      placeholder: |
+        Example:
+        java.sql.SQLSyntaxErrorException: Unknown column 'Population' in 'field list'
+    validations:
+      required: true
+
+  - type: input
+    id: sql-query
+    attributes:
+      label: SQL Query (if applicable)
+      description: If the issue involves a database query, paste the full SQL here.
+      placeholder: SELECT Name, Population FROM country WHERE Continent='Asia';
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did you run the system?
+      options:
+        - Localhost (MySQL Workbench or Docker)
+        - Remote Server
+        - GitHub Actions / CI
+        - Other
+      default: 0
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: System Version
+      description: Which version or branch of the Java system are you using?
+      options:
+        - version 0.1
+        - version 0.2
+        - latest
+        - Custom Branch
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Help us recreate the bug.
+      placeholder: |
+        1. Run App.java
+        2. Wait for connection
+        3. Error occurs during Report 3 generation
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Include connection attempts, SQL messages, or Java exceptions.
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: |
+        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Drewid101/Group19-DevOps/blob/master/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
