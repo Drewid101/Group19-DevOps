@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, Develop, Release ]
+  pull_request:
+    branches: [ master, Develop, Release ]
+
+jobs:
+  build-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build self-contained JAR with Maven
+        run: mvn -B package
+      - name: Check the JAR exists
+        run: ls -l target/semApp.jar
+      - name: Upload the JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: semApp-jar
+          path: target/semApp.jar
+
+  build-docker:
+    needs: build-jar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: semApp-jar
+          path: target
+      - name: Build the Docker image
+        run: docker build -t group19-app .
+      - name: Run the Docker image
+        run: docker run --rm group19-app
