@@ -5,6 +5,11 @@ on:
     branches:
       - master
       - develop
+      - preDevelopment
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   UnitTests:
@@ -97,18 +102,18 @@ jobs:
        - name: Deploy Release
          uses: marvinpinto/action-automatic-releases@latest
          with:
-           repo_token: ${{ secrets.PAT_TOKEN }}
+           repo_token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
            prerelease: false
            automatic_release_tag: latest
            files: ./target/*.jar
            overwrite: true
 
        - name: Copy Output
-         run: docker container cp group19-devops-app-1:./app/reports ./
+         run: docker container cp group19-predevelopment-app-1:./app/reports ./
 
        - name: Deploy
          uses: JamesIves/github-pages-deploy-action@v4.2.5
          with:
            branch: reports
            folder: reports
-           token: ${{ secrets.DEPLOY_PAT }}
+           token: ${{ secrets.DEPLOY_PAT || secrets.GITHUB_TOKEN }}

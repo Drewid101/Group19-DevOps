@@ -89,7 +89,7 @@ This will build the Docker image and start the application as defined in the `do
 ## Kanban Board
 
 You can follow our tasks and progress here:
-[Group 19 Backlog / Kanban Board](https://github.com/Drewid101/Group19-DevOps)
+[Group 19 Backlog / Kanban Board](https://github.com/users/osamorju/projects/1)
 
 ---
 
