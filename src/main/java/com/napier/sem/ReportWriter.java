@@ -1,9 +1,11 @@
 package com.napier.sem;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -219,15 +221,15 @@ public class ReportWriter {
 
     // Common helper method to write to ./reports/
     private void writeToFile(String filename, StringBuilder sb) {
+        Path directory = Path.of("./reports/");
         try {
-            new File("./reports/").mkdirs();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("./reports/" + filename)));
-            writer.write(sb.toString());
-            writer.close();
+            Files.createDirectories(directory);
+            try (BufferedWriter writer = Files.newBufferedWriter(directory.resolve(filename), StandardCharsets.UTF_8)) {
+                writer.write(sb.toString());
+            }
             System.out.println("✅ Report written: ./reports/" + filename);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UncheckedIOException("Could not write report: " + directory.resolve(filename), e);
         }
     }
 }
-

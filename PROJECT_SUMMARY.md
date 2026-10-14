@@ -6,7 +6,7 @@ Group 19 of **Edinburgh Napier University** built this project for the **DevOps 
 
 | Document | What it covers |
 |---|---|
-| `README.md` | Overview, requirements, build and run steps, requirements table |
+| `README.md` | Overview, Docker build/run steps, fixed coursework settings and CI/CD |
 | `PRODUCT_BACKLOG.md` | User stories, acceptance criteria, priorities, story points |
 | `docs/use-cases/` and `docs/use-case-diagrams/` | Use cases (UC-01 to UC-13) and diagrams for the Data Analyst |
 | `CONTRIBUTING.md` / `Code of Conduct.md` | Branching, pull request and conduct rules |
@@ -38,7 +38,7 @@ The intended user is a **Data Analyst** who needs population information at diff
 
 **Out of scope**: a web or graphical interface, editing data, and any database other than `world`. The "top N", continent, region and similar values are set in the code, not entered by the user while it runs.
 
-**Status:** all 32 requirements are marked **Met** in `README.md` and **Done** in `PRODUCT_BACKLOG.md`.
+**Status:** all 32 requirements are marked **Done** in `PRODUCT_BACKLOG.md`.
 
 ## 4. How it works
 
@@ -60,26 +60,28 @@ world.sql  ->  MySQL (Docker)  ->  App.java  ->  report classes  ->  terminal + 
 | Language | Java 17 (the development repo uses JDK 24) |
 | Build | Maven (`pom.xml`) |
 | Database | MySQL with the `world` dataset (`db/world.sql`) |
-| Testing | JUnit 5, JaCoCo coverage (in the development repo) |
+| Testing | JUnit 5 connection regression tests and full-output container acceptance checks |
 | Containers | Docker and Docker Compose |
-| CI | GitHub Actions, with Codecov coverage |
+| CI/CD | GitHub Actions, GHCR candidates and promotion, tested-JAR releases and reports publication |
 
 ## 6. Testing
 
-- **Unit tests** (in the `GROUP19-PREDEVELOPMENT` repo) cover every report class, the data objects, `PopulationUtils` and `ReportWriter`: 154 tests, all passing.
-- **Integration tests** (`AppIntegrationTest`, 35 tests) run the reports against a real MySQL database, all passing when the database is running.
-- Integration tests are excluded from the normal `mvn package` run, so they run only when asked for: `mvn test -Dtest=AppIntegrationTest`.
+- **Connection regression tests** in this repository cover invalid connection arguments and interruption handling. Database settings use the original Java static strings, not environment variables.
+- **Container integration checks** build or pull the application and database images, run all reports against MySQL, and compare all 32 fresh Markdown files with the committed output.
+- The full report unit/integration suite and coverage setup described for `GROUP19-PREDEVELOPMENT` remain in that separate repository and have not been imported here.
 
 ## 7. How to run it
 
 ```bash
-docker compose up -d db                 # start MySQL and load world.sql (wait ~30s)
-mvn clean package                       # build and run unit tests
-java -jar target/semApp.jar localhost:33060 3000          # generate the reports (team repo jar name)
-docker compose down                     # stop the database
+docker compose build
+docker compose up --no-build --pull never --abort-on-container-exit --exit-code-from app
+mkdir -p generated-reports
+docker compose cp app:/app/reports/. generated-reports/
+sh scripts/verify-reports.sh generated-reports
+docker compose down                     # keep the database volume
 ```
 
-Needs JDK 17 or later, Maven 3.9+ and Docker. The reports appear in `reports/`.
+Needs only Docker with Compose v2 or newer. Docker builds `semApp.jar` from source using Java 17 and Maven. The local reports appear in `generated-reports/`, leaving the committed `reports/` unchanged. See `README.md` for published-image and optional host-JAR instructions.
 
 ## 8. Repositories and branches
 
@@ -90,15 +92,17 @@ Needs JDK 17 or later, Maven 3.9+ and Docker. The reports appear in `reports/`.
 
 Work in the team repository flows `feature/…` → `Develop` → `Release` → `master`.
 
-**Known follow-ups**
+**Delivery and local configuration**
 
-- The team `pom.xml` needs the `mysql-connector-j` dependency for the app to connect to MySQL. Without it the app starts, prints "Could not load SQL driver" and skips the reports.
-- The code uses the database password `root`, while `docker-compose.yml` sets `example`.
-- In `docker-compose.yml` the app container needs `db:3306` as its database address.
-- The unit and integration tests live in the `GROUP19-PREDEVELOPMENT` repository and have not yet been moved to the team repository.
+- MySQL Connector/J is packaged in the executable JAR.
+- Java and Compose use fixed `root`/`root` credentials. Compose keeps host port `33060` and connects the application to `db:3306` through the existing command-line arguments. Comments warn that production must use managed secrets, restricted database access and TLS.
+- The application image builds its own JAR and runs as a non-root user; the database image embeds the existing `db/world.sql` without changing the MySQL 8.0 version.
+- Published candidates are acceptance-tested before `latest` is promoted. Releases contain the exact tested JAR and reports, and use new tags rather than rewriting existing releases.
+- A maintainer must permit workflow package/repository writes and make both GHCR packages public before unauthenticated image pulls work.
+- The separate development repository's full test suite is still a possible future import, not part of this container replication.
 
 ## 9. Team workflow
 
 - Work happens on `feature/`, `bugfix/` and `hotfix/` branches, merged by pull request after review.
-- Tasks are tracked on the project Kanban board linked from `README.md`.
-- Code style is checked against PMD rules (naming conventions, for example), as described in `README.md`.
+- Tasks are tracked using the product backlog and the team's GitHub project board.
+- CI runs connection tests and complete container report checks; no PMD or Codecov job is currently configured in this repository.
