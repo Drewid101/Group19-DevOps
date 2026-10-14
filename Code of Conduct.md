@@ -10,11 +10,13 @@ This Code of Conduct sets the expectations for each team member for the duration
 
    - Harassment of any kind, based on but not limited to nationality, race, gender or age, whether through designated team communication channels, or private    interactions, will not be tolerated and will be treated as stated in 5a of this code. 
 
-   - Members will practice understanding as it regards the time zone, personal commitments, and language proficiency of fellow team members. 
+   - Members will practice understanding as it regards the time zone, personal commitments, and language proficiency of fellow team members.
+
+   - Members will extend consideration to team members personal circumstances as it relates meeting attendance.
 
    - Members will respect the time, effort, and contributions made by others toward the project's success. 
 
-   - All interactions should contribute to a respectful, inclusive, and professional team environment. 
+   - All interactions should contribute to a respectful, inclusive, and professional team environment.
 
 ## 2. Communication 
 
@@ -78,8 +80,10 @@ This Code of Conduct sets the expectations for each team member for the duration
 
    - Review by the team during Stand-ups 
 
-   - Redistribution or removal of responsibilities. 
+   - Redistribution or removal of responsibilities.
 
+   - Collective agreement required by team members regarding name submission to module delivery team.
+     
    - Formal documentation of non-participation and notification to the module delivery team. 
 
    - Dismissal from the group by the module delivery team 
