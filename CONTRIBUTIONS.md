@@ -17,10 +17,10 @@ All 32 report requirements are implemented and marked **Met** in the requirement
 | Member | GitHub username | Main areas | Evidence | Confirmation |
 |---|---|---|---|---|
 | Jude Osamor | @osamorju | Product backlog and prioritisation, the report application (32 reports), report output files, tests, project documents, reviewing and merging team pull requests | PRs #6, #8, #44, #57, #58, #59, #60 | Confirmed |
-| Britney | @Britney-Med | Team Code of Conduct, use cases and use-case diagrams, `world` database script | Commits of 12 and 14 Oct 2026; branches `docs/Code-of-conduct`, `docs/use-cases`, `feature/world-sql-file` | Pending |
-| Reynold John | [username to confirm] | Maven starter project, Dockerfile, GitHub Actions CI pipeline, promoting work through `Develop`, `Release` and `master` | Commits of 10 and 13 Oct 2026; PRs #53 to #56 | Pending |
+| Britney Medford | @Britney-Med | Team Code of Conduct, use cases and use-case diagrams, `world` database script | Commits of 12 and 14 Oct 2026; branches `docs/Code-of-conduct`, `docs/use-cases`, `feature/world-sql-file` | Pending |
+| Reynold John | [Reynold784] | Maven starter project, Dockerfile, GitHub Actions CI pipeline, promoting work through `Develop`, `Release` and `master` | Commits of 10 and 13 Oct 2026; PRs #53 to #56 | Pending |
 | Sayed Habib | @mrhabib11 | Docker Compose setup for the database and app, reviewing and merging documentation and Docker work | Commit "Add Docker Compose setup for database and app (#41)"; PRs #45, #48, #49, #50 | Pending |
-| Drewid101 | @Drewid101 | Created and owns the team repository | Initial commit, 8 Oct 2026 | Pending |
+| Andrew Daniel | @Drewid101 | Created and owns the team repository. Created Project/Kanban Table | Initial commit, 8 Oct 2026 | Confirmed |
 
 ## Detailed contributions
 
@@ -36,7 +36,7 @@ All 32 report requirements are implemented and marked **Met** in the requirement
 - Added the project summary, contributing guide, security policy and licence.
 - Reviewed and merged teammates' pull requests, and followed up on team progress.
 
-### Britney (@Britney-Med)
+### Britney Medford (@Britney-Med)
 
 **Completed work:**
 
@@ -44,7 +44,7 @@ All 32 report requirements are implemented and marked **Met** in the requirement
 - Wrote the initial use cases and use-case diagrams (`docs/use-cases/`, `docs/use-case-diagrams/`).
 - Added the `world` database SQL script (`db/world.sql`).
 
-### Reynold John
+### Reynold John (@Reynold784)
 
 **Completed work:**
 
