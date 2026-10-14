@@ -1,22 +1,45 @@
+name: group19-devops
+
 services:
   db:
-    image: mysql:8.0
+    image: ghcr.io/drewid101/group19-devops-database:latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
+    # Coursework only. Production must use managed secrets, restricted users, and private database networking.
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "33060:3306"
     volumes:
-      - ./db:/docker-entrypoint-initdb.d:ro
+      - database-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pexample"]
+      test:
+        - CMD
+        - mysql
+        - --protocol=TCP
+        - -h127.0.0.1
+        - -uroot
+        - -proot
+        - world
+        - --execute=SELECT 1
+        - --silent
       interval: 5s
       timeout: 5s
       retries: 20
+      start_period: 30s
 
   app:
-    build: .
+    image: ghcr.io/drewid101/group19-devops-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    command: ["db:3306", "2000"]
     depends_on:
       db:
         condition: service_healthy
+volumes:
+  database-data:

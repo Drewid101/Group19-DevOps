@@ -34,36 +34,44 @@ public class App {
      * @param delay delay in milliseconds between connection retries
      */
     public void connect(String location, int delay) {
-        try {
-            // Load MySQL JDBC driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Could not load SQL driver");
-            return;
+        if (location == null || location.isBlank()) {
+            throw new IllegalArgumentException("Database location must not be blank.");
+        }
+        if (delay < 0) {
+            throw new IllegalArgumentException("Database retry delay must not be negative.");
         }
 
-        // Database connection info
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Could not load the MySQL JDBC driver.", e);
+        }
+
+        // Coursework only. Production must use managed secrets, a restricted database user, and verified TLS.
         String url = "jdbc:mysql://" + location + "/world?useSSL=false&allowPublicKeyRetrieval=true";
         String user = "root";
         String password = "root";
-
         int retries = 5;
-        for (int i = 0; i < retries; ++i) {
+
+        SQLException lastFailure = null;
+        for (int attempt = 0; attempt < retries; attempt++) {
             System.out.println("Connecting to database...");
             try {
-                // Wait a bit for db to start
                 Thread.sleep(delay);
-                // Connect to database
                 conn = DriverManager.getConnection(url, user, password);
                 System.out.println("Successfully connected");
-                break;
+                return;
             } catch (SQLException sqle) {
-                System.out.println("Failed to connect to database attempt " + i);
+                lastFailure = sqle;
+                System.out.println("Failed to connect to database attempt " + (attempt + 1) + " of " + retries);
                 System.out.println(sqle.getMessage());
             } catch (InterruptedException ie) {
-                System.out.println("Thread interrupted? Should not happen.");
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Database connection interrupted.", ie);
             }
         }
+        throw new IllegalStateException("Could not connect to " + location + "/world"
+                + " after " + retries + " attempts.", lastFailure);
     }
 
     /**
@@ -75,8 +83,8 @@ public class App {
             try {
                 // Close connection
                 conn.close();
-            } catch (Exception e) {
-                System.out.println("Error closing connection to database");
+            } catch (SQLException e) {
+                System.err.println("Error closing connection to database: " + e.getMessage());
             }
         }
     }
@@ -91,22 +99,12 @@ public class App {
         ReportWriter writer = new ReportWriter();
 
         try {
-            // Connect to database using default or provided location and delay
             if (args.length < 2) {
                 app.connect("localhost:33060", 2000);
             } else {
                 app.connect(args[0], Integer.parseInt(args[1]));
             }
-
-            // CI and other environments may run without MySQL: exit cleanly
-            if (app.conn == null) {
-                System.out.println("No database connection available. Skipping report generation.");
-                return;
-            }
-
             runReports(app, writer);
-        } catch (Exception e) {
-            System.out.println("Could not generate reports: " + e.getMessage());
         } finally {
             app.disconnect();
         }
