@@ -10,8 +10,7 @@ services:
     restart: unless-stopped
     # Coursework only. Production must use managed secrets, restricted users, and private database networking.
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "33060:3306"
     volumes:
